@@ -20,9 +20,10 @@ def encode_to_smt(cfm: CFM) -> str:
 def create_assert_feature_group_type_cardinality(feature: Feature):
     assertStatement = ""
     print(feature.group_type_cardinality.intervals)
-    if feature.group_type_cardinality.intervals.count() != 0:
+    if  feature.group_type_cardinality.intervals:
         assertStatement += "(assert "
-        assertStatement += "(or"
+        if len(feature.group_type_cardinality.intervals) > 1:
+            assertStatement += "(or"
         for interval in feature.group_type_cardinality.intervals:
 
             assertStatement += "(and "
@@ -38,13 +39,12 @@ def create_assert_feature_group_type_cardinality(feature: Feature):
                 assertStatement += str(interval.upper)
                 assertStatement += ")"
             assertStatement += ")" # closing and
-
-        assertStatement += ")" # closing or
+        if len(feature.group_type_cardinality.intervals) > 1:
+            assertStatement += ")" # closing or
         assertStatement += ")" # closing assert
 
-        for child in feature.children:
-            assertStatement += create_assert_feature_group_type_cardinality(child)
-
+    for child in feature.children:
+        assertStatement += create_assert_feature_group_type_cardinality(child)
     return assertStatement
 
 def create_sum_of_children_for_group_type_cardinality(features: list):
